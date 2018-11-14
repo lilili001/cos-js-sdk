@@ -40,7 +40,7 @@
         };
 
         var protocol = location.protocol === 'https:' ? 'https:' : 'http:';
-        var prefix = protocol + '//' + bj.bucket + '.cos.' + bj.region + '.myqcloud.com/';
+        var prefix = protocol + '//' + sh.bucket + '.cos.' + sh.region + '.myqcloud.com/';
 
         // 计算签名
         var getAuthorization = function (options, callback) {
