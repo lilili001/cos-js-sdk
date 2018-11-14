@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>使用易鑫的密钥可以成功</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="../dist/cos-js-sdk-v5.min.js"></script>
+</head>
+<body>
+
+<h1>Ajax Put 上传</h1>
+
+<input id="fileSelector" type="file">
+<input id="submitBtn" type="submit">
+<div id="msg"></div>
+<script>
+    $(function () {
+        var config = {
+            Bucket: 'dev-hydra-1255510356',
+            Region: 'ap-beijing'
+        };
+
+        var cos = new COS({
+            getAuthorization:function (options,callback) {
+                // 方法二、后端通过获取临时密钥，并计算好签名给到前端
+                var method = (options.Method || 'get').toLowerCase();
+                var key = options.Key || '';
+                var query = options.Query || {};
+                var headers = options.Headers || {};
+                var pathname = key.indexOf('/') === 0 ? key : '/' + key;
+                // var url = 'http://127.0.0.1:3000/sts-auth';
+                var url = '../server/yx-sts-auth.php';
+                var xhr = new XMLHttpRequest();
+                var data = {
+                    method: method,
+                    pathname: pathname,
+                    query: query,
+                    headers: headers,
+                };
+                xhr.open('POST', url, true);
+                xhr.setRequestHeader('content-type', 'application/json');
+                xhr.onload = function (e) {
+                    try {
+                        var AuthData = JSON.parse(e.target.responseText);
+                    } catch (e) {
+                    }
+                    callback({
+                        Authorization: AuthData.Authorization,
+                        XCosSecurityToken: AuthData.XCosSecurityToken,
+                    });
+                };
+                xhr.send(JSON.stringify(data));
+            }
+        });
+
+        var input = document.getElementById('fileSelector');
+        input.onchange = function () {
+            var file = this.files[0];
+            if (!file) return;
+            // 调用方法
+            cos.putObject({
+                Bucket: config.Bucket, // Bucket 格式：test-1250000000
+                Region: config.Region,
+                Key: "dir1/"+file.name, /* 必须 */
+                Body: file,
+                TaskReady: function (tid) {
+
+                },
+                onProgress: function (progressData) {
+                    console.log(JSON.stringify(progressData));
+                },
+            }, function (err, data) {
+                console.log(err || data);
+            });
+        }
+    })
+
+    
+</script>
+</body>
+</html>

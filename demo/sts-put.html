@@ -75,7 +75,7 @@
         };
 
         //这个是我调用的万象的方法
-        getAuthorization({Method:'GET',key:""},function (err,info) {
+        /*getAuthorization({Method:'GET',key:""},function (err,info) {
             var auth = info.Authorization;
             var XCosSecurityToken = info.XCosSecurityToken;
             console.log(XCosSecurityToken);
@@ -101,7 +101,7 @@
                 console.log('error')
             }
             xhr.send();
-        });
+        });*/
 
         // 上传文件
         var uploadFile = function (file, callback) {

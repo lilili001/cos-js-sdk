@@ -1,6 +1,11 @@
-var config = {
+/*var config = {
     Bucket: 'mt-1257971636',
     Region: 'ap-shanghai'
+};*/
+
+var config = {
+    Bucket: 'dev-hydra-1255510356',
+    Region: 'ap-beijing'
 };
 
 var util = {
@@ -46,7 +51,7 @@ var cos = new COS({
         var headers = options.Headers || {};
         var pathname = key.indexOf('/') === 0 ? key : '/' + key;
         // var url = 'http://127.0.0.1:3000/sts-auth';
-        var url = '../server/sts-auth.php';
+        var url = '../server/yx-sts-auth.php';
         var xhr = new XMLHttpRequest();
         var data = {
             method: method,
