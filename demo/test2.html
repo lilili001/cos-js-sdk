@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+
+<h1>COS-JS-SDK-V5 上传</h1>
+
+<input id="fileSelector" type="file">
+<input id="submitBtn" type="submit">
+
+<!-- 引用cos-js-sdk-v5.min.js文件 -->
+<script src="../dist/cos-js-sdk-v5.min.js"></script>
+
+<div id="msg"></div>
+
+<script>
+    (function () {
+
+        var bj={
+            bucket: 'dev-hydra-1255510356',
+            region: 'ap-beijing',
+            secretid:'AKIDeDct0xNQwITDoGFnoikmOuIl6IJXtrln',
+            secretkey:'HONOHzXbbR7h7MSSZZQAj7TCj8WpxtiN'
+        };
+
+        var sh = {
+            bucket: 'mt-1257971636',
+            region: 'ap-shanghai',
+            secretid:'AKID4zjLo94Qp36ykYEMQKQPTPYfbMxOHL2e',
+            secretkey:'c3gHj0AB1f8QXl0GakjYCk8LNFxt0JXb'
+        };
+
+        // 请求用到的参数
+        var Bucket = 'mt-1257971636'; // 存储桶名称，需修改
+        var Region = 'ap-shanghai'; // 地域
+        var protocol = location.protocol === 'https:' ? 'https:' : 'http:';
+        var prefix = protocol + '//' + sh.bucket + '.cos.' + sh.region + '.myqcloud.com/';
+        // 计算签名
+        var getAuthorization = function (options, callback) {
+            // 前端使用固定密钥计算签名（适用于前端调试，为了安全性，建议使用临时密钥生成签名）
+            // 临时密钥参考链接：https://github.com/tencentyun/cos-js-sdk-v5
+            var authorization = COS.getAuthorization({
+                SecretId: sh.secretid,  // 你的固定密钥SecretId，需修改
+                SecretKey: sh.secretkey,  // 你的固定密钥SecretKey，需修改
+                Method: options.Method,
+                Key: options.Key,
+                Query: options.Query,
+                Headers: options.Headers,
+            });
+            callback(null, {
+                Authorization: authorization,
+            });
+        };
+
+        // 上传文件
+        var uploadFile = function (file, callback) {
+            var timestamp=new Date().getTime();
+            var Key = 'upload/' + timestamp+file.name; // 这里指定上传目录和文件名，可根据情况修改
+            getAuthorization({Method: 'PUT', Key: Key}, function (err, info) {
+                if (err) {
+                    alert(err);
+                    return;
+                }
+                var auth = info.Authorization;
+                //var XCosSecurityToken = info.XCosSecurityToken; // 使用固定密钥不需要此参数，临时密钥才需要
+                var url = prefix + Key;
+                var xhr = new XMLHttpRequest();
+                xhr.open('PUT', url, true);
+                xhr.setRequestHeader('Authorization', auth);
+                //XCosSecurityToken && xhr.setRequestHeader('x-cos-security-token', XCosSecurityToken); // 使用固定密钥不需要此参数，临时密钥才需要
+                xhr.onload = function () {
+                    console.log(xhr);
+                    if (xhr.status === 200 || xhr.status === 206) {
+                        var ETag = xhr.getResponseHeader('etag');
+                        callback(null, {url: url, ETag: ETag});
+                    } else {
+                        callback('文件 ' + Key + ' 上传失败，状态码：' + xhr.status);
+                    }
+                };
+                xhr.onerror = function () {
+                    callback('文件 ' + Key + ' 上传失败，请检查是否没配置 CORS 跨域规则');
+                };
+                xhr.send(file);
+            });
+        };
+        // 监听表单提交
+        document.getElementById('submitBtn').onclick = function (e) {
+            var file = document.getElementById('fileSelector').files[0];
+            if (!file) {
+                document.getElementById('msg').innerText = '未选择上传文件';
+                return;
+            }
+            file && uploadFile(file, function (err, data) {
+                console.log(err || data);
+                //document.getElementById('msg').innerText = err ? err : ('上传成功，ETag=' + data.ETag);
+                document.getElementById('msg').innerText = err ? err : ('上传成功，ETag=' + data.ETag + ' URL=' + data.url);
+
+            });
+        };
+    })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>这个是用于万象的</title>
+</head>
+<body>
+<script>
+    function getAuth(cb) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET","../server/ci-auth.php",true);
+        xhr.onload = function () {
+            console.log(xhr.responseText);
+            var auth = xhr.responseText;
+            cb && cb(auth)
+        };
+        xhr.send();
+    }
+    getAuth(function(auth){
+        var xhr = new XMLHttpRequest();
+        var url = "https://mt-1257971636.pic.ap-shanghai.myqcloud.com/?style";
+        xhr.open("GET",url,true);
+
+        xhr.setRequestHeader('Authorization', auth);
+        //xhr.setRequestHeader('x-cos-security-token', XCosSecurityToken);
+        xhr.onload = function (e) {
+            console.log(333);
+            if (xhr.status === 200 || xhr.status === 206) {
+                console.log('ok')
+                console.log(xhr)
+
+            } else {
+
+            }
+        };
+        xhr.onerror = function () {
+            console.log('error')
+        }
+        xhr.send();
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test3</title>
+</head>
+<body>
+<input id="file-selector" type="file">
+
+<img _src="https://mt-1257971636.cos.ap-shanghai.myqcloud.com/dir/20180724145446.png" />
+<div id="zip" data-url="https://mt-1257971636.cos.ap-shanghai.myqcloud.com/1mb.zip?q-sign-algorithm=sha1&q-ak=AKIDmHNxe45xlY7nnOeIJgdfy6aUAwFSXp0j&q-sign-time=1541724614;1541726414&q-key-time=1541724614;1541726414&q-header-list=&q-url-param-list=&q-signature=2692f8c25e1b56a0cd1968ab86727ae0a494d9aa&x-cos-security-token=dc5bbe32b254d47f9a47e3ecb672757448a2cde110001&response-content-disposition=attachment"></div>
+
+<button id="download">下载</button>
+
+<div id="filecontent"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="../dist/cos-js-sdk-v5.min.js"></script>
+<script>
+    var Bucket = 'mt-1257971636';
+    var Region = 'ap-shanghai';
+
+    var sh = {
+        bucket: 'mt-1257971636' ,
+        region: 'ap-shanghai'
+    };
+
+    var bj = {
+        bucket: 'hydra-1255510356' ,
+        region: 'ap-beijing'
+    };
+
+    // 初始化实例
+    var cos = new COS({
+        getAuthorization: function (options, callback) {
+            // 异步获取签名
+            $.get('../server/sts.php', {
+                bucket: options.Bucket,
+                region: options.Region,
+            }, function (data) {
+                callback({
+                    TmpSecretId: data.credentials.tmpSecretId,
+                    TmpSecretKey: data.credentials.tmpSecretKey,
+                    XCosSecurityToken: data.credentials.sessionToken,
+                    ExpiredTime: data.expiredTime,
+                });
+            });
+        }
+    });
+
+    var showLogText = function (text, color) {
+        if (typeof text === 'object') {
+            try {
+                text = JSON.stringify(text);
+            } catch (e) {
+            }
+        }
+        var div = document.createElement('div');
+        div.innerText = text;
+        color && (div.style.color = color);
+    };
+
+    var logger = {
+        log: function (text) {
+            console.log.apply(console, arguments);
+            var args = [].map.call(arguments, function (v) {
+                return typeof v === 'object' ? JSON.stringify(v) : v;
+            });
+            showLogText(args.join(' '));
+        },
+        error: function (text) {
+            console.error(text);
+            showLogText(text, 'red');
+        },
+    };
+
+    // 监听选文件
+    document.getElementById('file-selector').onchange = function () {
+
+        var file = this.files[0];
+        if (!file) return;
+
+        // 分片上传文件
+        /*cos.sliceUploadFile({
+            Bucket: Bucket,
+            Region: Region,
+            Key: file.name,
+            Body: file,
+        }, function (err, data) {
+            console.log(err, data);
+        });*/
+
+        cos.putObject({
+            Bucket:  sh.bucket, // Bucket 格式：test-1250000000
+            Region:  sh.region,
+            Key: "dir1/test/"+file.name,
+            Body: file,
+            TaskReady: function (tid) {
+                //TaskId = tid;
+            },
+            onProgress: function (progressData) {
+                logger.log(JSON.stringify(progressData));
+            },
+        }, function (err, data) {
+            console.log( '==========8.0 putObject' );
+            logger.log(err || data);
+        });
+    };
+
+    //请求可以确认该 Bucket 是否存在, 是否有权限访问
+   /* var bucket = cos.headBucket({
+        Bucket: 'mt-1257971636',
+        Region: 'ap-shanghai',
+    }, function(err, data) {
+        console.log('======1.0 bucket 返回');
+        console.log(  err || data  );
+    });*/
+
+    //列出目录 a 的所有文件
+    /*cos.getBucket({
+        Bucket: 'mt-1257971636',
+        Region: 'ap-shanghai',
+        Prefix: '',
+    }, function(err, data) {
+        console.log("=====2.0 getBucket");
+        console.log(err || data.Contents);
+    });*/
+
+    //获取 Bucket 的 ACL(access control list)
+    cos.getBucketAcl({
+        Bucket: 'mt-1257971636',
+        Region: 'ap-shanghai',
+    }, function(err, data) {
+        console.log("=====3.0 getBucketAcl");
+        console.log(err || data);
+    });
+
+    /*cos.putBucketAcl({
+        Bucket: 'mt-1257971636', /!* 必须 *!/
+        Region: 'ap-shanghai',    /!* 必须 *!/
+        ACL: 'public-read'
+    }, function(err, data) {
+        console.log("=====5.0 设置 Bucket 公有读");
+        console.log(err || data);
+    });
+
+    cos.getBucketPolicy({
+        Bucket: 'mt-1257971636', /!* 必须 *!/
+        Region: 'ap-shanghai',    /!* 必须 *!/
+    }, function(err, data) {
+        console.log("===== 设置6.0 getBucketPolicy");
+        console.log(err || data);
+    });
+
+    cos.putBucketPolicy({
+        Bucket: 'mt-1257971636', /!* 必须 *!/
+        Region: 'ap-shanghai',    /!* 必须 *!/
+        Policy: {
+            "version": "2.0",
+            "Statement": [{
+                "Effect": "allow",
+                "Principal": {
+                    "qcs": ["qcs::cam::uin/100008138535:uin/100008138535"]
+                },
+                "Action": [
+                    "name/cos:PutObject",
+                    "name/cos:InitiateMultipartUpload",
+                    "name/cos:ListMultipartUploads",
+                    "name/cos:ListParts",
+                    "name/cos:UploadPart",
+                    "name/cos:CompleteMultipartUpload"
+                ],
+                "Resource": ["qcs::cos:ap-shanghai:uid/1257971636:mt-1257971636/!*"],
+            }]
+        },
+    }, function(err, data) {
+        console.log("=====7.0 设置 putBucketPolicy");
+        console.log(err || data);
+    });*/
+
+    /*cos.deleteBucketPolicy({
+        Bucket: 'mt-1257971636', /!* 必须 *!/
+        Region: 'ap-shanghai',    /!* 必须 *!/
+    }, function(err, data) {
+        console.log("=========9.0 deleteBucketPolicy");
+        console.log(err || data);
+    });*/
+
+    /*cos.getObject({
+        Bucket: 'mt-1257971636', /!* 必须 *!/
+        Region: 'ap-shanghai',    /!* 必须 *!/
+        Key: 'dir/20180724145446.png', /!* 必须 *!/
+    }, function(err, data) {
+        console.log("========10.0 getObject");
+        //console.log(data.Body);
+    });*/
+
+    function downloadFile(url){
+        var form=$("<form>");//定义form表单,通过表单发送请求
+        form.attr("style","display:none");//设置为不显示
+        form.attr("target","");
+        form.attr("method","get");//设置请求类型
+        form.attr("action",url);//设置请求路径
+        $("body").append(form);//添加表单到页面(body)中
+        form.submit();//表单提交
+    }
+
+    $('#download').click(function () {
+        var url = $('img').attr('src');
+        //console.log(url);
+        downloadFile(url);
+        //var zipurl = $('#zip').data('url');
+        //location.href=zipurl;
+    });
+
+    //获取文件url
+    /*cos.getObjectUrl({
+        Bucket: 'mt-1257971636',
+        Region: 'ap-shanghai',
+        Key: '/dir1/test/20180724145446.png',
+        Sign: true
+    }, function (err, data) {
+        console.log("======= 11.0 getObjectUrl");
+        console.log(err || data.Url);
+    });*/
+
+    /*cos.multipartInit({
+        Bucket: 'mt-1257971636', /!* 必须 *!/
+        Region: 'ap-shanghai',    /!* 必须 *!/
+        Key: 'dir/20180724145446.png',              /!* 必须 *!/
+    }, function(err, data) {
+        console.log("=========11.0 multipartInit");
+        console.log(err || data);
+    });*/
+
+</script>
+</body>
+</html>
