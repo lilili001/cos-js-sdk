@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>这个是用于万象的</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 <body>
 <script>
@@ -17,10 +18,19 @@
         xhr.send();
     }
     getAuth(function(auth){
-        var xhr = new XMLHttpRequest();
-        var url = "https://mt-1257971636.pic.ap-shanghai.myqcloud.com/?style";
-        xhr.open("GET",url,true);
-
+        $.ajax({
+            method:"GET",
+            url:"http://mt-1257971636.pic.ap-shanghai.myqcloud.com/?style",
+            headers:{
+                Authorization:auth
+            },
+            success:function (res) {
+                
+            },
+            error:function (err) {
+            }
+        })
+       /* xhr.open("GET",url,true);
         xhr.setRequestHeader('Authorization', auth);
         //xhr.setRequestHeader('x-cos-security-token', XCosSecurityToken);
         xhr.onload = function (e) {
@@ -28,15 +38,13 @@
             if (xhr.status === 200 || xhr.status === 206) {
                 console.log('ok')
                 console.log(xhr)
-
             } else {
-
             }
         };
         xhr.onerror = function () {
             console.log('error')
         }
-        xhr.send();
+        xhr.send();*/
     })
 </script>
 </body>

@@ -8,6 +8,16 @@ var config = {
     Region: 'ap-beijing'
 };
 
+var sh = {
+    Bucket: 'mt-1257971636' ,
+    Region: 'ap-shanghai'
+};
+
+var bj = {
+    Bucket: 'dev-hydra-1255510356' ,
+    Region: 'ap-beijing'
+};
+
 var util = {
     createFile: function (options) {
         var buffer = new ArrayBuffer(options.size || 0);
@@ -26,7 +36,7 @@ var cos = new COS({
     getAuthorization: function (options,callback) {
         // 方法一、后端通过获取临时密钥给到前端，前端计算签名
         // var url = 'http://127.0.0.1:3000/sts';
-       /* var url = '../server/sts.php';
+        var url = '../server/sts.php';
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.onload = function (e) {
@@ -41,17 +51,17 @@ var cos = new COS({
                 ExpiredTime: data.expiredTime,
             });
         };
-        xhr.send();*/
-
+        xhr.send();
 
         // 方法二、后端通过获取临时密钥，并计算好签名给到前端
-        var method = (options.Method || 'get').toLowerCase();
+       /* var method = (options.Method || 'get').toLowerCase();
         var key = options.Key || '';
         var query = options.Query || {};
         var headers = options.Headers || {};
         var pathname = key.indexOf('/') === 0 ? key : '/' + key;
         // var url = 'http://127.0.0.1:3000/sts-auth';
-        var url = '../server/yx-sts-auth.php';
+        //var url = '../server/yx-sts-auth.php';
+        var url = '../server/sts-auth.php';
         var xhr = new XMLHttpRequest();
         var data = {
             method: method,
@@ -71,7 +81,7 @@ var cos = new COS({
                 XCosSecurityToken: AuthData.XCosSecurityToken,
             });
         };
-        xhr.send(JSON.stringify(data));
+        xhr.send(JSON.stringify(data));*/
 
 
         // // 方法三、后端使用固定密钥计算签名，返回给前端，auth.php，注意：后端需要通过 method、pathname 控制好权限，比如不允许 put / 等，这里暂不提供
@@ -145,9 +155,9 @@ var logger = {
 
 function getObjectUrl() {
     var url = cos.getObjectUrl({
-        Bucket: config.Bucket, // Bucket 格式：test-1250000000
-        Region: config.Region,
-        Key: '1mb.zip',
+        Bucket: sh.Bucket, // Bucket 格式：test-1250000000
+        Region: sh.Region,
+        Key: '/dir/20180724145446.png',
         Expires: 60,
         Sign: true,
     }, function (err, data) {

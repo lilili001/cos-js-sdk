@@ -30,7 +30,8 @@
                 var headers = options.Headers || {};
                 var pathname = key.indexOf('/') === 0 ? key : '/' + key;
                 // var url = 'http://127.0.0.1:3000/sts-auth';
-                var url = '../server/yx-sts-auth.php';
+                //var url = '../server/yx-sts-auth.php';
+                var url = 'http://10.10.24.129:8082/cossystem/cloud/signkey';
                 var xhr = new XMLHttpRequest();
                 var data = {
                     method: method,
@@ -43,11 +44,12 @@
                 xhr.onload = function (e) {
                     try {
                         var AuthData = JSON.parse(e.target.responseText);
+                        AuthData = AuthData.data;
                     } catch (e) {
                     }
                     callback({
-                        Authorization: AuthData.Authorization,
-                        XCosSecurityToken: AuthData.XCosSecurityToken,
+                        Authorization: AuthData.signKey,
+                        //XCosSecurityToken: AuthData.XCosSecurityToken,
                     });
                 };
                 xhr.send(JSON.stringify(data));
@@ -62,7 +64,7 @@
             cos.putObject({
                 Bucket: config.Bucket, // Bucket 格式：test-1250000000
                 Region: config.Region,
-                Key: "dir1/"+file.name, /* 必须 */
+                Key:  file.name, /* 必须 */
                 Body: file,
                 TaskReady: function (tid) {
 

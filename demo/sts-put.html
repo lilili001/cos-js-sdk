@@ -48,6 +48,7 @@
             var key = options.Key || '';
             var pathname = key.indexOf('/') === 0 ? key : '/' + key;
             // var url = 'http://127.0.0.1:3000/sts-auth' +
+
             var url = '../server/sts-auth.php' +
                 '?method=' + method +
                 '&pathname=' + encodeURIComponent(pathname);

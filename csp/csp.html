@@ -26,8 +26,8 @@
 <script src="../dist/cos-js-sdk-v5.js"></script>
 <script>
     var config = {
-        Bucket: 'test-1250000000',
-        Region: 'default'
+        Bucket: 'mt-1257971636' ,
+        Region: 'ap-shanghai'
     };
 
     var util = {
@@ -44,10 +44,13 @@
         }
     };
 
+    var protocol = location.protocol === 'https:' ? 'https:' : 'http:';
+    var prefix = protocol + '//' + config.Bucket + '.cos.' + config.Region + '.myqcloud.com/';
+
     var cos = new COS({
         CompatibilityMode: true,
-        ServiceDomain: 'http://cos.default.example.com',
-        Domain: 'http://cos.{Region}.example.com', // 后缀式
+        ServiceDomain: 'http://cos.default.myqcloud.com',
+        Domain: 'http://cos.'+config.Region+'.myqcloud.com', // 后缀式
         ForcePathStyle: true, // 后缀式
         // Domain: 'http://{Bucket}.cos.{Region}.example.com', // 前缀式
         getAuthorization: function (options, callback) {
@@ -90,8 +93,18 @@
         },
     };
 
+     function getAuthorization (options, callback) {
+        var url = './auth.php?method=' + options.Method + '&pathname=' + encodeURIComponent(options.Key);
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onload = function (e) {
+            callback(e.target.responseText);
+        };
+        xhr.send();
+    }
+
     function getAuth() {
-        var key = '1.png';
+        var key = '1mb.zip';
         getAuthorization({
             Method: 'get',
             Key: key

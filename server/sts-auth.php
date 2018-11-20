@@ -11,9 +11,9 @@ $config = array(
     'Bucket' => 'mt-1257971636',
     'Region' => 'ap-shanghai',
 
-    /*'SecretId' => 'AKIDfMxmTyXVcbQ7ezgB3oPo8LSN5eQ52Eh8', // 固定密钥
-    'SecretKey' => 'QegXFrNjvwlOsDORJ3b1VqzyobcVDoES', // 固定密钥
-    'Bucket' => 'hydra-1255510356',
+    /*'SecretId' => 'AKIDeDct0xNQwITDoGFnoikmOuIl6IJXtrln', // 固定密钥
+    'SecretKey' => 'HONOHzXbbR7h7MSSZZQAj7TCj8WpxtiN', // 固定密钥
+    'Bucket' => 'dev-hydra-1255510356',
     'Region' => 'ap-beijing',*/
 
     'AllowPrefix' => '*', // 这里改成允许的路径前缀，这里可以根据自己网站的用户登录态判断允许上传的目录，例子：* 或者 a/* 或者 a.jpg
@@ -276,7 +276,7 @@ $tempKeys = getTempKeys();
 if ($tempKeys && isset($tempKeys['credentials'])) {
     $data = array(
         'Authorization' => getAuthorization($tempKeys, $method, $pathname, $query, $headers),
-        //'Authorization' => "q-sign-algorithm=sha1&q-ak=AKIDfMxmTyXVcbQ7ezgB3oPo8LSN5eQ52Eh8&q-sign-time=1542177766;1542181366&q-key-time=1542177766;1542181366&q-header-list=&q-url-param-list=&q-signature=0c8663b36e96fafbf914c7715fd104dabbb19272" ,
+        //'Authorization' => "q-sign-algorithm=sha1&q-ak=AKIDeDct0xNQwITDoGFnoikmOuIl6IJXtrln&q-sign-time=1542365863;1542369463&q-key-time=1542365863;1542369463&q-header-list=&q-url-param-list=&q-signature=83c150c94858deeece5f0939acab9b1de4f2f2eb" ,
         'XCosSecurityToken' => $tempKeys['credentials']['sessionToken'],
     );
 } else {

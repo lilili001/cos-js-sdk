@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>临时签名 ok</title>
+</head>
+<body>
+<input id="file-selector" type="file">
+
+<img _src="https://mt-1257971636.cos.ap-shanghai.myqcloud.com/dir/20180724145446.png" />
+<div id="zip" data-url="https://mt-1257971636.cos.ap-shanghai.myqcloud.com/1mb.zip?q-sign-algorithm=sha1&q-ak=AKIDmHNxe45xlY7nnOeIJgdfy6aUAwFSXp0j&q-sign-time=1541724614;1541726414&q-key-time=1541724614;1541726414&q-header-list=&q-url-param-list=&q-signature=2692f8c25e1b56a0cd1968ab86727ae0a494d9aa&x-cos-security-token=dc5bbe32b254d47f9a47e3ecb672757448a2cde110001&response-content-disposition=attachment"></div>
+
+<button id="download">下载</button>
+
+<div id="filecontent"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="../dist/cos-js-sdk-v5.min.js"></script>
+<script>
+    var Bucket = 'mt-1257971636';
+    var Region = 'ap-shanghai';
+
+    var sh = {
+        bucket: 'mt-1257971636' ,
+        region: 'ap-shanghai'
+    };
+
+    var bj = {
+        bucket: 'dev-hydra-1255510356' ,
+        region: 'ap-beijing'
+    };
+
+    // 初始化实例
+    var cos = new COS({
+        getAuthorization: function (options, callback) {
+            // 异步获取签名
+            $.post('../server/sts-1.php', {
+                bucket: options.Bucket,
+                region: options.Region,
+                method:options.Method
+            }, function (data) {
+                callback({
+                    TmpSecretId: data.credentials.tmpSecretId,
+                    TmpSecretKey: data.credentials.tmpSecretKey,
+                    XCosSecurityToken: data.credentials.sessionToken,
+                    ExpiredTime: data.expiredTime,
+                });
+            });
+        }
+    });
+
+    var showLogText = function (text, color) {
+        if (typeof text === 'object') {
+            try {
+                text = JSON.stringify(text);
+            } catch (e) {
+            }
+        }
+        var div = document.createElement('div');
+        div.innerText = text;
+        color && (div.style.color = color);
+    };
+
+    var logger = {
+        log: function (text) {
+            console.log.apply(console, arguments);
+            var args = [].map.call(arguments, function (v) {
+                return typeof v === 'object' ? JSON.stringify(v) : v;
+            });
+            showLogText(args.join(' '));
+        },
+        error: function (text) {
+            console.error(text);
+            showLogText(text, 'red');
+        },
+    };
+
+    // 监听选文件
+    document.getElementById('file-selector').onchange = function () {
+
+        var file = this.files[0];
+        if (!file) return;
+
+        cos.putObject({
+            Method:"post",
+            Bucket:  bj.bucket, // Bucket 格式：test-1250000000
+            Region:  bj.region,
+            Key: "dir1/test/"+file.name,
+            Body: file,
+            TaskReady: function (tid) {
+                //TaskId = tid;
+            },
+            onProgress: function (progressData) {
+                logger.log(JSON.stringify(progressData));
+            },
+        }, function (err, data) {
+            console.log( '==========8.0 putObject' );
+            logger.log(err || data);
+        });
+    };
+
+
+    function downloadFile(url){
+        var form=$("<form>");//定义form表单,通过表单发送请求
+        form.attr("style","display:none");//设置为不显示
+        form.attr("target","");
+        form.attr("method","get");//设置请求类型
+        form.attr("action",url);//设置请求路径
+        $("body").append(form);//添加表单到页面(body)中
+        form.submit();//表单提交
+    }
+
+    $('#download').click(function () {
+        var url = $('img').attr('src');
+        //console.log(url);
+        downloadFile(url);
+        //var zipurl = $('#zip').data('url');
+        //location.href=zipurl;
+    });
+
+
+
+</script>
+</body>
+</html>

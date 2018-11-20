@@ -5,10 +5,7 @@ $bucket = 'mt';  // 对象存储控制台生成的存储桶名称为：BucketNam
 $secret_id = 'AKID4zjLo94Qp36ykYEMQKQPTPYfbMxOHL2e';
 $secret_key = 'c3gHj0AB1f8QXl0GakjYCk8LNFxt0JXb';
 
-/*$secret_id = 'AKIDcDzAiBl3nnujtYGY3bKqwYSqKekoqFYO';
-$secret_key = 'UPDxMyLUzB8vQ5UyGwZPNEzGCtAbeUs6';*/
-
-$expired = time() + 6000;
+$expired = time() + 10000;
 $onceExpired = 0;
 $current = time();
 $rdm = rand();

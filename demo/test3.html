@@ -26,7 +26,7 @@
     };
 
     var bj = {
-        bucket: 'hydra-1255510356' ,
+        bucket: 'dev-hydra-1255510356' ,
         region: 'ap-beijing'
     };
 
@@ -127,13 +127,13 @@
     });*/
 
     //获取 Bucket 的 ACL(access control list)
-    cos.getBucketAcl({
+    /*cos.getBucketAcl({
         Bucket: 'mt-1257971636',
         Region: 'ap-shanghai',
     }, function(err, data) {
         console.log("=====3.0 getBucketAcl");
         console.log(err || data);
-    });
+    });*/
 
     /*cos.putBucketAcl({
         Bucket: 'mt-1257971636', /!* 必须 *!/
@@ -213,16 +213,35 @@
         //location.href=zipurl;
     });
 
+    function getCIAuth(cb) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET","../server/ci-auth.php",true);
+        xhr.onload = function () {
+            console.log(xhr.responseText);
+            var auth = xhr.responseText;
+            cb && cb(auth)
+        };
+        xhr.send();
+    }
+
     //获取文件url
-    /*cos.getObjectUrl({
+    cos.getObjectUrl({
         Bucket: 'mt-1257971636',
         Region: 'ap-shanghai',
-        Key: '/dir1/test/20180724145446.png',
+        Key: 'dir/20180724145446.png',
+        Expires: 60,
         Sign: true
     }, function (err, data) {
+
+        //获取万象签名, 私有读写需要获取万象签名
+        getCIAuth(function (auth) {
+            //获取签名后可以拼接万象缩略图
+        });
+
         console.log("======= 11.0 getObjectUrl");
         console.log(err || data.Url);
-    });*/
+    });
+
 
     /*cos.multipartInit({
         Bucket: 'mt-1257971636', /!* 必须 *!/

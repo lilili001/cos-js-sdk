@@ -276,7 +276,7 @@ $tempKeys = getTempKeys();
 if ($tempKeys && isset($tempKeys['credentials'])) {
     $data = array(
         'Authorization' => getAuthorization($tempKeys, $method, $pathname, $query, $headers),
-        //'Authorization' => "q-sign-algorithm=sha1&q-ak=AKIDfMxmTyXVcbQ7ezgB3oPo8LSN5eQ52Eh8&q-sign-time=1542180525;1542184125&q-key-time=1542180525;1542184125&q-header-list=&q-url-param-list=&q-signature=308750044e68f80a387a163808ed2f670cfb9355" ,
+        //'Authorization' => "q-sign-algorithm=sha1&q-ak=AKIDfMxmTyXVcbQ7ezgB3oPo8LSN5eQ52Eh8&q-sign-time=1542183437;1542187037&q-key-time=1542183437;1542187037&q-header-list=&q-url-param-list=&q-signature=24f6744a13ea6297324d16801e512b2e1112a7ac" ,
         'XCosSecurityToken' => $tempKeys['credentials']['sessionToken'],
     );
 } else {
